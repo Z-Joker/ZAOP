@@ -1,0 +1,36 @@
+apply plugin: 'groovy'
+
+apply plugin: 'maven'
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile gradleApi()//gradle sdk
+    compile localGroovy()//groovy sdk
+    compile 'com.android.tools.build:gradle:3.4.0'
+//    compile files('libs\\classes.jar')
+    compile 'org.ow2.asm:asm:5.0.3'
+    compile 'org.ow2.asm:asm-commons:5.0.3'
+//    compile(name:'zaop-release', ext:'aar')
+//    compile project(path: ':zaop')
+
+}
+
+//设置maven deployer
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            //设置插件的GAV参数
+            pom.groupId = 'io.git.zjoker.plugin'
+            pom.artifactId = 'zaop'
+            pom.version = '1.0.0'
+            //文件发布到下面目录
+            repository(url: uri("$rootDir/maven"))
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    mavenCentral()
+}

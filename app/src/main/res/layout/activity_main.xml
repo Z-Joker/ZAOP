@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".MainActivity">
+
+
+    <Button
+        android:id="@+id/rt_support"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="16dp"
+        android:text="RTSupport" />
+
+    <Button
+        android:id="@+id/start_act"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="16dp"
+        android:text="startActivityForResult" />
+
+    <Button
+        android:id="@+id/check_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="16dp"
+        android:text="CheckPermission" />
+
+    <Button
+        android:id="@+id/fast_click"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="demoFastClick"
+        android:padding="16dp"
+        android:text="FastClick" />
+
+    <Button
+        android:id="@+id/posting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="16dp"
+        android:text="ThreadOn: Posting" />
+
+    <Button
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="16dp"
+        android:text="ThreadOn: Main" />
+
+    <Button
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="16dp"
+        android:text="ThreadOn: Background" />
+
+    <Button
+        android:id="@+id/async"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:padding="16dp"
+        android:text="ThreadOn: Async" />
+</LinearLayout>
