@@ -5,14 +5,15 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.internal.pipeline.TransformManager
 import io.git.zjoker.processor.CheckSelfPermissionWeaver
 import io.git.zjoker.processor.ClassProcessor
-import io.git.zjoker.processor.ThreadSwitchWeaver
 import io.git.zjoker.processor.CodeWeaveUtils
+import io.git.zjoker.processor.ThreadSwitchWeaver
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.objectweb.asm.*
-import org.objectweb.asm.commons.AdviceAdapter
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 
 import static org.objectweb.asm.ClassReader.EXPAND_FRAMES
@@ -27,7 +28,7 @@ class ZAOPPlugin extends Transform implements Plugin<Project> {
 
     @Override
     String getName() {
-        return "bazhang"
+        return "ZAOP"
     }
 
     @Override
@@ -51,8 +52,7 @@ class ZAOPPlugin extends Transform implements Plugin<Project> {
                    Collection<TransformInput> referencedInputs, TransformOutputProvider outputProvider,
                    boolean isIncremental) throws IOException, TransformException, InterruptedException {
 
-
-        println '//===============asm visit start===============//' + CodeWeaveUtils.getClassPath(Object.class)
+        println '//===============asm visit start===============//'
 
         def startTime = System.currentTimeMillis()
         ThreadSwitchWeaver.clearInnerClassIndex()
