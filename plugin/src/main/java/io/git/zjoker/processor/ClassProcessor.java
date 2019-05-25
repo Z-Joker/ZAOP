@@ -54,28 +54,24 @@ public class ClassProcessor extends ClassVisitor {
         MethodVisitor mv = null;
 
         MethodNode mn = getMethodNode(access, name, desc, signature, exceptions);
-        if (mn != null) {
-            AnnotationNode threadOnAnn = withThreadOnAnn(mn);
-            AnnotationNode checkPermissionAnn = withCheckPermissionAnn(mn);
+        AnnotationNode threadOnAnn = withThreadOnAnn(mn);
+        AnnotationNode checkPermissionAnn = withCheckPermissionAnn(mn);
 
-            if (threadOnAnn != null) {
-                ThreadSwitchWeaver.weave(cv, classNode, mn, threadOnAnn, sourceFile.getParentFile().getAbsolutePath());
-                mv = super.visitMethod(access, ThreadSwitchWeaver.getProxyMethodName(name), desc, signature, exceptions);
-            }
-            else if (!CodeWeaveUtils.isStatic(access) && checkPermissionAnn != null) {
-                CheckSelfPermissionWeaver.weave(cv, classNode, mn, checkPermissionAnn,sourceFile.getParentFile().getAbsolutePath());
-                mv = super.visitMethod(access, CheckSelfPermissionWeaver.getProxyMethodName(name), desc, signature, exceptions);
-            }
-
-            AnnotationNode rtSupportAnn = withRTSupportAnn(mn);
-            if (rtSupportAnn != null) {
-                mv = new RTSupportMethodWeaver(
-                        api
-                        , safeMV(mv, access, name, desc, signature, exceptions)
-                        , mn);
-            }
+        if (threadOnAnn != null) {
+            ThreadSwitchWeaver.weave(cv, classNode, mn, threadOnAnn, sourceFile.getParentFile().getAbsolutePath());
+            mv = super.visitMethod(access, ThreadSwitchWeaver.getProxyMethodName(name), desc, signature, exceptions);
+        } else if (!CodeWeaveUtils.isStatic(access) && checkPermissionAnn != null) {
+            CheckSelfPermissionWeaver.weave(cv, classNode, mn, checkPermissionAnn, sourceFile.getParentFile().getAbsolutePath());
+            mv = super.visitMethod(access, CheckSelfPermissionWeaver.getProxyMethodName(name), desc, signature, exceptions);
         }
 
+        AnnotationNode rtSupportAnn = withRTSupportAnn(mn);
+        if (rtSupportAnn != null) {
+            mv = new RTSupportMethodWeaver(
+                    api
+                    , safeMV(mv, access, name, desc, signature, exceptions)
+                    , mn);
+        }
 
         if (!CodeWeaveUtils.isStatic(access)) {
             if (CodeWeaveUtils.matchMethod(
@@ -99,7 +95,13 @@ public class ClassProcessor extends ClassVisitor {
                             , safeMV(mv, access, name, desc, signature, exceptions)
                             , access, name, desc);
                 }
+            } else if (withFastClickFilter(mn) != null) {
+                mv = new FastClickWeaver(
+                        api
+                        , safeMV(mv, access, name, desc, signature, exceptions)
+                        , access, name, desc);
             }
+
         }
 
 
@@ -128,12 +130,20 @@ public class ClassProcessor extends ClassVisitor {
     private AnnotationNode withThreadOnAnn(MethodNode mn) {
         return withAnn(mn, "io.git.zjoker.zaop.annotations.ThreadOn");
     }
-//
+
+    //
     private AnnotationNode withCheckPermissionAnn(MethodNode mn) {
         return withAnn(mn, "io.git.zjoker.zaop.annotations.CheckPermission");
     }
 
+    private AnnotationNode withFastClickFilter(MethodNode mn) {
+        return withAnn(mn, "io.git.zjoker.zaop.annotations.FastClickFilter");
+    }
+
     private AnnotationNode withAnn(MethodNode mn, String className) {
+        if (mn == null) {
+            return null;
+        }
         String classDesc = Type.getObjectType(CodeWeaveUtils.getClassPath(className)).getDescriptor();
         List<AnnotationNode> annotations = mn.invisibleAnnotations;
         if (annotations != null) {
