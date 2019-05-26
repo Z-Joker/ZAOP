@@ -1,11 +1,13 @@
 # ZAOP
-ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实现。
+ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实现，通过织入代码完成功能的实现。
 
 
 # 特点
 - 1 使用注解的方式达到效果，使用起来方便直观。
 - 2 和业务代码解耦，业务代码逻辑中不需要考虑其他代码。
-- 3 基于ASM，代码轻量。
+- 3 基于ASM，轻量级的代码织入。
+- 4 混淆之前完成织入，不会被混淆影响。
+- 5 使用方便，无需过多配置。
 
 # 使用
 ### 1.@RTSupport	
@@ -59,11 +61,69 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
     //@ThreadOn(ThreadMode.ASYNC)
     public void f() {}
 ```
-需要注意的一点：一旦使用到了线程，就代表这个方法就不是同步的变成异步的了，对于有返回值的方法，就没有办法返回正确处理过的返回值了，所以使用了@ThreadOn的方法，建议不要有返回值，如果有返回值，会默认返回这个类型对应的默认值。
+需要注意的一点：一旦使用到了线程，就会破坏方法的同步性变成异步的，对于有返回值的方法，就没有办法返回正确处理过的返回值了，所以使用了@ThreadOn的方法，不建议有返回。如果有返回值，会默认返回这个类型对应的默认值。
 ```
     //将会返回 0。
     @ThreadOn(ThreadMode.MAIN)
     public int f() {
         return 10
     }
+```
+
+### 4.@CheckPermission
+标记执行该方法需要哪些权限，并在运行时检查是否有这些权限。
+```
+    @CheckPermission({Manifest.permission.CAMERA, Manifest.permission.READ_CALENDAR})
+    public int f() {
+    }
+```
+需要注意的一点：和@ThreadOn一样，不建议方法有返回值。如果有返回值，会默认返回这个类型对应的默认值。
+
+### 4.StartActivityForResult
+用于替代Activity.onActivityResult, 将startAcvity和接受activity返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
+```
+    ZAOP.startActivityForResult(
+                activity
+                , new Intent(activity, Main2Activity.class)
+                , new OnActResultBridge.ActivityResultCallback() {
+                    @Override
+                    public void onActivityResult(int resultCode, Intent data) {
+                        Toast.makeText(MainActivity.this, "来自第2个Acitivity : " + resultCode + ", " + data.getStringExtra("Data"), Toast.LENGTH_LONG).show();
+                    }
+                });
+```
+使用这种方法需要保持Activity.OnActivityResult调用super.OnActivityResult(),为了保证上面的方法一定起作用，默认对Activity子类的OnActivityResult做了代码织入。
+
+### 5.requestPermissions
+用于替代Activity.onRequestPermissionsResult, 将requestPermissions和接受返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
+```
+    ZAOP.requestPermissions(
+                    context
+                    , permissions
+                    , new PermissionRequestBridge.PermissionResultCallback() {
+                        @Override
+                        public void onRequestPermissionsResult(
+                                @NonNull String[] permissions
+                                , @NonNull int[] grantResults) {
+                        }
+                    });
+```
+和ZAOP.startActivityForResult一样，默认对Activity.onRequestPermissionsResult进行了代码织入处理。
+
+更多示例请见Demo，之后会继续更新更多的工具方法。
+## 6. License
+```
+ Copyright 2019 Mr_Joker (zsimplest@gmail.com)
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 ```
