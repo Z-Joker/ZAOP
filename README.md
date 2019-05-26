@@ -14,7 +14,7 @@ ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实
 配合Android提供的一些编译期注解使用，将其只在编译期作用带入到运行时。<br/>之所以采用@RTSupport配合原生注解的的方式，是想保持编辑器对原生注解的警告支持基础上加入运行时检查。
 
 - 1 @NonNull：作用可以指明一个参数不可以为null，如果传入了null值，开发工具IDE会警告程序可能会有崩溃的风险，但是运行时不会起作用。<br/>配合@RTSupport使用，会在运行时检查标记了@NonNull的参数是否为null，没有标记@NonNull的参数不会加入运行时检查。
-```
+```Java
     //运行时会检查str1 而不会检查str2
     @RTSupport
     public void f(@NonNull String str1, String str2) {
@@ -23,7 +23,7 @@ ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实
 ```
 ### 2.过滤快速点击
 - 1 默认会对实现OnClickListener.onClick(View)的方法加入快速点击过滤处理，只需要像平常一样使用setOnClickListener()就可以有过滤效果。
-```
+```Java
     //正常使用就已经默认加入了过滤处理
     view.setOnClickListener(new OnClickListener {
         public void onClick(View v){}
@@ -39,7 +39,7 @@ ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实
 
 
 - 2 如果想对OnClickListener.onClick(View)之外的方法(例如使用ButterKnife定义的点击方法)加入快速点击过滤，可以使用@FastClickFilter
-```
+```Java
     @FastClickFilter
     @BindView(R.id.view)
     public void login() {
@@ -54,7 +54,7 @@ ThreadMode.MAIN : 主线程运行<br/>
 ThreadMode.POSTING : 保持在被调用的线程运行<br/>
 ThreadMode.BACKGROUD : 如果在工作线程被调用就保持在这个的线程，如果在主线程被调用就开一个工作线程运行<br/>
 ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运行<br/>
-```
+```Java
     @ThreadOn(ThreadMode.MAIN)
     //@ThreadOn(ThreadMode.POSTING)
     //@ThreadOn(ThreadMode.BACKGROUD)
@@ -62,17 +62,25 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
     public void f() {}
 ```
 需要注意的一点：一旦使用到了线程，就会破坏方法的同步性变成异步的，对于有返回值的方法，就没有办法返回正确处理过的返回值了，所以使用了@ThreadOn的方法，不建议有返回。如果有返回值，会默认返回这个类型对应的默认值。
-```
+```Java
     //将会返回 0。
     @ThreadOn(ThreadMode.MAIN)
     public int f() {
         return 10
     }
 ```
+如果想实现有返回值功能的方法，建议使用Callback形式拿到返回值, 这样@ThreadOn就不会影响到返回值了。
+```Java
+    //将会返回 0。
+    @ThreadOn(ThreadMode.MAIN)
+    public int f(Callback callback) {
+        callback.callback(10);
+    }
+```
 
 ### 4.@CheckPermission
 标记执行该方法需要哪些权限，并在运行时检查是否有这些权限。
-```
+```Java
     @CheckPermission({Manifest.permission.CAMERA, Manifest.permission.READ_CALENDAR})
     public int f() {
     }
@@ -81,7 +89,7 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
 
 ### 5.StartActivityForResult
 用于替代Activity.onActivityResult, 将startActivity和接受activity返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
-```
+```Java
     ZAOP.startActivityForResult(
                 activity
                 , new Intent(activity, Main2Activity.class)
@@ -96,7 +104,7 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
 
 ### 6.requestPermissions
 用于替代Activity.onRequestPermissionsResult, 将requestPermissions和接受返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
-```
+```Java
     ZAOP.requestPermissions(
                     context
                     , permissions
