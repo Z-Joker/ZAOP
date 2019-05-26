@@ -31,7 +31,7 @@ ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实
 
     //如果想实现某个OnClick允许快速点击，可以使用@FastClickAllowed, 就不会加入过滤处理了。
     view.setOnClickListener(new OnClickListener {
-        @@FastClickAllowed
+        @FastClickAllowed
         public void onClick(View v){}
     })
 
@@ -79,8 +79,8 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
 ```
 需要注意的一点：和@ThreadOn一样，不建议方法有返回值。如果有返回值，会默认返回这个类型对应的默认值。
 
-### 4.StartActivityForResult
-用于替代Activity.onActivityResult, 将startAcvity和接受activity返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
+### 5.StartActivityForResult
+用于替代Activity.onActivityResult, 将startActivity和接受activity返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
 ```
     ZAOP.startActivityForResult(
                 activity
@@ -94,7 +94,7 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
 ```
 使用这种方法需要保持Activity.OnActivityResult调用super.OnActivityResult(),为了保证上面的方法一定起作用，默认对Activity子类的OnActivityResult做了代码织入。
 
-### 5.requestPermissions
+### 6.requestPermissions
 用于替代Activity.onRequestPermissionsResult, 将requestPermissions和接受返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
 ```
     ZAOP.requestPermissions(
@@ -111,7 +111,7 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
 和ZAOP.startActivityForResult一样，默认对Activity.onRequestPermissionsResult进行了代码织入处理。
 
 更多示例请见Demo，之后会继续更新更多的工具方法。
-## 6. License
+## 7. License
 ```
  Copyright 2019 Mr_Joker (zsimplest@gmail.com)
 
