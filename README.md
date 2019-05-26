@@ -38,12 +38,11 @@ ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实
 ```
 
 
-- 2 如果想对OnClickListener.onClick(View)之外的方法(例如使用ButterKnife定义的点击方法)加入快速点击过滤，可以使用@FastClickFilter
+- 2 如果想对OnClickListener.onClick(View)之外的方法 (例如使用ButterKnife定义的点击方法) 加入快速点击过滤，可以使用@FastClickFilter
 ```Java
     @FastClickFilter
     @BindView(R.id.view)
     public void login() {
-        
     }
 ```
 
@@ -117,7 +116,7 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
 ```
 和ZAOP.startActivityForResult一样，默认对Activity.onRequestPermissionsResult进行了代码织入处理。
 
-更多示例请见Demo，之后会继续更新更多的工具方法。
+更多示例请见Demo，之后会继续更新更多的AOP方法。
 ## 7. License
 ```
  Copyright 2019 Mr_Joker (zsimplest@gmail.com)
