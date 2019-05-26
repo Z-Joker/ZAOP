@@ -92,12 +92,16 @@ public class ZAOP {
 
             @Override
             public void onShouldShowRational(String permission) {
-                Log.d("checkSelfPermissions", "onShouldShowRational");
+                if (ZAOP.config().globalPermissionCallback != null) {
+                    ZAOP.config().globalPermissionCallback.onShouldShowRational(permission);
+                }
             }
 
             @Override
             public void onPermissionReject(String permission) {
-                Log.d("checkSelfPermissions", "onPermissionReject");
+                if (ZAOP.config().globalPermissionCallback != null) {
+                    ZAOP.config().globalPermissionCallback.onPermissionReject(permission);
+                }
             }
         });
     }
@@ -189,16 +193,19 @@ public class ZAOP {
         }
     }
 
-
-    public static void checkNonnull(List<ParamEntity> params) {
+    /***********************************RTSupport*********************************/
+    public static void checkNonnull(String className, String method, List<ParamEntity> params) {
         for (int i = 0; i < params.size(); i++) {
             ParamEntity paramEntity = params.get(i);
             if (paramEntity.value == null) {
-                throw new NullPointerException(String.format("Parameter '%s' is null.", paramEntity.name));
+                if (ZAOP.config().globalRTSupportCallback != null) {
+                    ZAOP.config().globalRTSupportCallback.onParamIsNull(className, method, paramEntity.index, paramEntity.name);
+                } else {
+                    throw new NullPointerException(String.format("Parameter '%s' is null. Class : %s, Method : %s", paramEntity.name, className, method));
+                }
             }
         }
     }
-
 
     public interface PermissionCallback {
         void onPermissionsGranted();
@@ -206,5 +213,42 @@ public class ZAOP {
         void onShouldShowRational(String permission);
 
         void onPermissionReject(String permission);
+    }
+
+
+    /***********************************Config*********************************/
+    private GlobalPermissionCallback globalPermissionCallback;
+    private GlobalRTSupportCallback globalRTSupportCallback;
+
+    private ZAOP() {
+
+    }
+
+    public ZAOP setGlobalRTSupportCallback(GlobalRTSupportCallback globalRTSupportCallback) {
+        this.globalRTSupportCallback = globalRTSupportCallback;
+        return this;
+    }
+
+    public ZAOP setGlobalPermissionCallback(GlobalPermissionCallback globalPermissionCallback) {
+        this.globalPermissionCallback = globalPermissionCallback;
+        return this;
+    }
+
+    public static ZAOP config() {
+        return ZAOP.SingleInstance.zaopConfig;
+    }
+
+    static class SingleInstance {
+        public static final ZAOP zaopConfig = new ZAOP();
+    }
+
+    public interface GlobalPermissionCallback {
+        void onShouldShowRational(String permission);
+
+        void onPermissionReject(String permission);
+    }
+
+    public interface GlobalRTSupportCallback {
+        void onParamIsNull(String className, String method, int paramIndex, String paramName);
     }
 }

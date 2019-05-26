@@ -2,6 +2,7 @@ package io.git.zjoker.processor;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.LocalVariableNode;
@@ -11,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.git.zjoker.processor.CodeWeaveUtils.CLASS_PATH_ZAOP;
-import static io.git.zjoker.processor.CodeWeaveUtils.getClassPath;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
@@ -20,10 +20,12 @@ import static org.objectweb.asm.Opcodes.POP;
 
 public class RTSupportMethodWeaver extends MethodVisitor {
     private MethodNode methodNode;
+    private String classPath;
 
-    public RTSupportMethodWeaver(int i, MethodVisitor mv, MethodNode methodNode) {
+    public RTSupportMethodWeaver(int i, MethodVisitor mv, MethodNode methodNode, String classPath) {
         super(i, mv);
         this.methodNode = methodNode;
+        this.classPath = classPath;
     }
 
     @Override
@@ -88,15 +90,22 @@ public class RTSupportMethodWeaver extends MethodVisitor {
                 mv.visitVarInsn(ALOAD, nextVarIndex);
                 mv.visitTypeInsn(NEW, paramEntityCP);
                 mv.visitInsn(DUP);
+
+                mv.visitIntInsn(Opcodes.BIPUSH, nonnullParamIndex.get(i) + 1);
                 mv.visitLdcInsn(paramName);
                 mv.visitVarInsn(ALOAD, paramIndex);
-                CodeWeaveUtils.newObj(mv, paramEntityCP, CodeWeaveUtils.getMethodDesc(void.class, String.class, Object.class));
+                CodeWeaveUtils.newObj(mv, paramEntityCP, CodeWeaveUtils.getMethodDesc(void.class, int.class, String.class, Object.class));
                 CodeWeaveUtils.callPublicInstanceMethod(mv, CodeWeaveUtils.getClassPath(List.class), "add", CodeWeaveUtils.getMethodDesc(boolean.class, Object.class), true);
                 mv.visitInsn(POP);
             }
-
+            mv.visitLdcInsn(CodeWeaveUtils.getClassName(classPath));
+            mv.visitLdcInsn(methodNode.name);
             mv.visitVarInsn(ALOAD, nextVarIndex);
-            CodeWeaveUtils.callStaticMethod(mv, CLASS_PATH_ZAOP, "checkNonnull", CodeWeaveUtils.getMethodDesc(void.class, List.class));
+            CodeWeaveUtils.callStaticMethod(
+                    mv
+                    , CLASS_PATH_ZAOP
+                    , "checkNonnull"
+                    , CodeWeaveUtils.getMethodDesc(void.class, String.class, String.class, List.class));
 
         }
     }

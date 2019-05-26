@@ -70,7 +70,8 @@ public class ClassProcessor extends ClassVisitor {
             mv = new RTSupportMethodWeaver(
                     api
                     , safeMV(mv, access, name, desc, signature, exceptions)
-                    , mn);
+                    , mn
+                    , classNode.name);
         }
 
         if (!CodeWeaveUtils.isStatic(access)) {
