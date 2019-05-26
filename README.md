@@ -71,10 +71,9 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
 ```
 如果想实现有返回值功能的方法，建议使用Callback形式拿到返回值, 这样@ThreadOn就不会影响到返回值了。
 ```Java
-    //将会返回 0。
     @ThreadOn(ThreadMode.MAIN)
     public int f(Callback callback) {
-        callback.callback(10);
+        callback.onReturn(10);
     }
 ```
 
