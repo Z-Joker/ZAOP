@@ -20,6 +20,15 @@ ZAOP是Android平台上的一个工具类库，结合了AOP思想，基于ASM实
     public void f(@NonNull String str1, String str2) {
         
     }
+    
+    //可以在Application中配置检查到Null的时候的全局策略
+    ZAOP.config()
+                .setGlobalRTSupportCallback(new ZAOP.GlobalRTSupportCallback() {
+                    @Override
+                    public void onParamIsNull(String className, String method, int paramIndex, String paramName) {
+                        throw new NullPointerException(String.format("Parameter '%s' is null. Index: %s,  Class : %s, Method : %s", paramName, paramIndex, className, method));
+                    }
+                })
 ```
 ### 2.过滤快速点击
 - 1 默认会对实现OnClickListener.onClick(View)的方法加入快速点击过滤处理，只需要像平常一样使用setOnClickListener()就可以有过滤效果。
@@ -82,6 +91,20 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
     @CheckPermission({Manifest.permission.CAMERA, Manifest.permission.READ_CALENDAR})
     public int f() {
     }
+    
+    //可以在Application中配置权限被拒绝时的全局策略
+    ZAOP.config()
+                .setGlobalPermissionCallback(new ZAOP.GlobalPermissionCallback() {
+                    @Override
+                    public void onShouldShowRational(String permission) {
+                        Log.d("checkSelfPermissions", "onShouldShowRational");
+                    }
+
+                    @Override
+                    public void onPermissionReject(String permission) {
+                        Log.d("checkSelfPermissions", "onPermissionReject");
+                    }
+                })
 ```
 需要注意的一点：和@ThreadOn一样，不建议方法有返回值。如果有返回值，会默认返回这个类型对应的默认值。
 
@@ -98,7 +121,7 @@ ThreadMode.ASYNC : 无论在哪个线程调用，都新开一个工作线程运�
                     }
                 });
 ```
-使用这种方法需要保持Activity.OnActivityResult调用super.OnActivityResult(),为了保证上面的方法一定起作用，默认对Activity子类的OnActivityResult做了代码织入。
+使用这种方法需要保持Activity.OnActivityResult调用super.onActivityResult(),为了保证上面的方法一定起作用，默认对Activity子类的OnActivityResult做了代码织入。
 
 ### 6.requestPermissions
 用于替代Activity.onRequestPermissionsResult, 将requestPermissions和接受返回值的逻辑放在一起，更好的维持逻辑的清晰性。并且屏蔽了requestCode, 不用在写if else 的判断了。
